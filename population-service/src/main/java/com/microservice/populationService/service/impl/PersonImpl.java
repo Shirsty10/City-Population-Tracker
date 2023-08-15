@@ -17,7 +17,8 @@ public class PersonImpl implements PersonService {
 
     private PersonRepository personRepository;
     private ModelMapper modelMapper;
-    private WebClient webClient;
+//    private WebClient webClient;
+    private APIFeignClient apiFeignClient;
     @Override
     public PersonDto savePerson(PersonDto personDto) {
 //        Person person = new Person(personDto.getPersonId(),
@@ -42,11 +43,12 @@ public class PersonImpl implements PersonService {
     @Override
     public ApiResponseDto getPersonByUniqueNo(String uniqueNo) {
         Person getPerson = personRepository.findByUniqueNo(uniqueNo);
-          CityDto citydtodata = webClient.get()
-                  .uri("http://localhost:8080/api/cities/" + getPerson.getCityPinCode())
-                  .retrieve()
-                  .bodyToMono(CityDto.class)
-                  .block();
+        CityDto citydtodata= apiFeignClient.getCityByPinCode(getPerson.getCityPinCode());
+//          CityDto citydtodata = webClient.get()
+//                  .uri("http://localhost:8080/api/cities/" + getPerson.getCityPinCode())
+//                  .retrieve()
+//                  .bodyToMono(CityDto.class)
+//                  .block();
 //        PersonDto getpersonDto = new PersonDto(
 //                getPerson.getPersonId(),
 //                getPerson.getFirstName(),
@@ -55,7 +57,7 @@ public class PersonImpl implements PersonService {
 //        );
 
         PersonDto getpersonDto = modelMapper.map(getPerson,PersonDto.class);
-        ApiResponseDto apiResponseDto = new ApiResponseDto(citydtodata,getpersonDto);
-        return apiResponseDto;
+        ApiResponseDto apiResponseValue = new ApiResponseDto(citydtodata,getpersonDto);
+        return apiResponseValue;
     }
 }
